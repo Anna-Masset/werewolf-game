@@ -108,10 +108,26 @@ export function buildTrack(log: GameLog, pov: Pov): PovTrack {
   return { pov, steps }
 }
 
-/** The focus role that matters most to this POV by default. */
-export function defaultFocus(log: GameLog, pov: Pov): Role {
-  if (pov === 'narrator') return 'werewolf'
-  return log.players.find((p) => p.id === pov)?.team === 'werewolves' ? 'seer' : 'werewolf'
+/** Roles a POV hunts for, in priority order. */
+function focusPriority(log: GameLog, pov: Pov): Role[] {
+  const wolf = pov !== 'narrator' && log.players.find((p) => p.id === pov)?.team === 'werewolves'
+  const order: Role[] = wolf ? ['seer', 'witch', 'little_girl', 'cupid'] : ['werewolf']
+  return order.filter((r) => log.players.some((p) => p.role === r))
+}
+
+/**
+ * Automatic focus: the first role in the POV's priority list that is still hidden from them,
+ * i.e. not every holder of that card is known yet. Falls back to the last role in the list.
+ */
+export function autoFocus(log: GameLog, pov: Pov, frame: PovStep): Role {
+  const order = focusPriority(log, pov)
+  if (order.length === 0) return 'werewolf'
+  for (const r of order) {
+    const total = log.players.filter((p) => p.role === r && p.id !== pov).length
+    const known = Object.entries(frame.known).filter(([id, role]) => role === r && id !== pov).length
+    if (known < total) return r
+  }
+  return order[order.length - 1]
 }
 
 export function povName(log: GameLog, pov: Pov): string {

@@ -51,6 +51,29 @@ Keyboard shortcuts in the game view: **← / →** step, **space** play/pause, *
 - **Belief history:** one line per player, drawn up to the current step only, so nothing is spoiled.
   Click names to pin up to 4 coloured lines, hover for values, and click the chart to jump.
   With *Show truth* on, the true werewolves' lines are dashed.
+- **Watching for:** *auto* follows the role the POV most needs to find next. Villagers hunt the
+  Werewolf; a wolf hunts the Seer, then the Witch once the Seer is revealed, then the Little Girl.
+  Click a role to pick one yourself.
+- **📜 Summary**, which opens automatically at the end: the winner, eliminations in order, belief
+  accuracy over time (the average P(Werewolf) on the true werewolves, against the village average
+  and chance), turning points (the biggest belief jumps, excluding card reveals), and villagers
+  ranked by accuracy.
+- **📊 Experiments** (link on the start screen): reads `public/results/summary.csv`, shows win rates
+  by role and by personality (split by team), and lists the games. Games that have a log file open
+  in the viewer.
+
+### `summary.csv` format (for the experiments page)
+
+One row per game, with a header row:
+
+```csv
+game_id,log_file,seed,n_players,winner,rounds,roster
+sim-0001,game_0001.json,42,13,village,4,"Amélie|seer|discreet|died;Bastien|werewolf|manipulative|survived;..."
+```
+
+- `log_file`: a file name in `public/logs/`, or empty if no log was saved.
+- `winner`: `village` or `werewolves`.
+- `roster`: `;`-separated entries of `name|role|personality|survived` (or `died`).
 
 ## Adding a log file
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { GameLog, Role } from '../types/log'
 import { loadLog, type LoadResult } from '../lib/loader'
-import { buildTrack, defaultFocus, type Pov } from '../lib/pov'
+import { autoFocus, buildTrack, type Pov } from '../lib/pov'
 import { narrate, stepLabel } from '../lib/narrate'
 import { ROLE_COLOR, ROLE_ICON, ROLE_LABEL } from '../lib/roles'
 import { useMood } from '../lib/mood'
@@ -16,6 +16,7 @@ import '../components/decision.css'
 import { SuspicionPanel } from '../components/SuspicionPanel'
 import { EventFeed } from '../components/EventFeed'
 import { BeliefChart } from '../components/BeliefChart'
+import { EndScreen } from '../components/EndScreen'
 import '../components/panels.css'
 import './game.css'
 
@@ -53,14 +54,26 @@ export function GamePage() {
 function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]; pov: Pov; setPov: (p: Pov) => void }) {
   const track = useMemo(() => buildTrack(log, pov), [log, pov])
   const pb = usePlayback(log.steps.length)
-  const [focus, setFocus] = useState<Role>(() => defaultFocus(log, pov))
+  // null = automatic (follow the POV's next hidden role); a role = picked by hand
+  const [manualFocus, setManualFocus] = useState<Role | null>(null)
   const [showTruth, setShowTruth] = useState(false)
   const [warnOpen, setWarnOpen] = useState(warnings.length > 0)
   const [tab, setTab] = useState<'now' | 'suspicion' | 'feed'>('now')
   const [chartOpen, setChartOpen] = useState(() => window.innerHeight >= 820)
-  useEffect(() => setFocus(defaultFocus(log, pov)), [log, pov])
+  const [endOpen, setEndOpen] = useState(false)
+  const last = log.steps.length - 1
+  // Open the summary when playback reaches the final step.
+  useEffect(() => { if (pb.t === last) setEndOpen(true) }, [pb.t, last])
+  useEffect(() => {
+    if (!endOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setEndOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [endOpen])
+  useEffect(() => setManualFocus(null), [log, pov])
 
   const frame = track.steps[pb.t]
+  const focus = manualFocus ?? autoFocus(log, pov, frame)
   const step = frame.step
   const night = step.phase === 'night' || step.phase === 'setup' || (step.phase === 'end' && log.result.winner !== 'village')
   useMood(night ? 'night' : 'day')
@@ -91,6 +104,14 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
           </div>
         </div>
 
+        <button
+          className="btn"
+          onClick={() => setEndOpen(true)}
+          title={pb.t < last ? 'Game summary: reveals how the game ends!' : 'Game summary'}
+        >
+          📜 Summary
+        </button>
+
         <label className="pov-switch">
           <span className="muted">Point of view</span>
           <select value={pov} onChange={(e) => setPov(e.target.value)}>
@@ -102,12 +123,19 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
         {!narrator && (
           <div className="focus-switch" role="group" aria-label="Focus role">
             <span className="muted">Watching for</span>
+            <button
+              className={`chip ${manualFocus === null ? 'on' : ''}`}
+              onClick={() => setManualFocus(null)}
+              title="Follow the role this player most needs to find next"
+            >
+              auto
+            </button>
             {rolesInGame.map((r) => (
               <button
                 key={r}
                 className={`chip ${focus === r ? 'on' : ''}`}
                 style={focus === r ? { borderColor: ROLE_COLOR[r], boxShadow: `0 0 0 1px ${ROLE_COLOR[r]} inset` } : undefined}
-                onClick={() => setFocus(r)}
+                onClick={() => setManualFocus(r)}
               >
                 {ROLE_ICON[r]} {ROLE_LABEL[r]}
               </button>
@@ -234,6 +262,16 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
       </main>
 
       <Timeline track={track} pb={pb} />
+      {endOpen && (
+        <EndScreen
+          log={log}
+          track={track}
+          pov={pov}
+          night={night}
+          onClose={() => setEndOpen(false)}
+          onJump={(t) => { setEndOpen(false); pb.setT(t) }}
+        />
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { fetchIndex, loadLog, registerUpload, type LoadResult, type LogIndexEntry } from '../lib/loader'
 import { PERSONALITY_ICON, PERSONALITY_LABEL, ROLE_ICON, ROLE_LABEL } from '../lib/roles'
 import type { Pov } from '../lib/pov'
@@ -111,6 +111,9 @@ export function StartPage() {
           )}
         </section>
       </main>
+      <div className="start-exp">
+        <Link to="/experiments" className="btn">📊 Experiments: win rates by role and personality →</Link>
+      </div>
       <footer className="start-foot muted">AA228/CS238 · Werewolf belief viewer · logs follow <code>schema/game_log.schema.json</code></footer>
     </div>
   )

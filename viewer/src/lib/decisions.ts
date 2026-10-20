@@ -1,6 +1,6 @@
 // Helpers for explaining a POV decision: which quantity matters, readable
 // action labels, and which observations moved the belief since the last decision.
-import type { Decision, DecisionOption, GameLog, PlayerId, Role, RoleDist } from '../types/log'
+import type { Decision, DecisionOption, EventType, GameLog, PlayerId, Role, RoleDist } from '../types/log'
 import type { Pov, PovTrack } from './pov'
 import { narrate, type Narration } from './narrate'
 import { ROLE_LABEL } from './roles'
@@ -41,6 +41,10 @@ export interface Mover {
   to: number
   t: number
   because: Narration | null
+  /** Type of the event the change is attributed to. */
+  cause?: EventType
+  /** Role whose probability moved (when it isn't obvious from context). */
+  role?: Role
 }
 
 /**
@@ -62,7 +66,7 @@ export function biggestMoves(
       if (Math.abs(b - a) < 0.03) continue
       const evs = track.steps[t].events
       const ev = evs.find((e) => e.target === target || e.actor === target || e.payload?.glimpsed === target) ?? evs[0]
-      out.push({ target, from: a, to: b, t, because: ev ? narrate(ev, log, pov, track.steps[t].known) : null })
+      out.push({ target, from: a, to: b, t, because: ev ? narrate(ev, log, pov, track.steps[t].known) : null, cause: ev?.type })
     }
   }
   return out.sort((x, y) => Math.abs(y.to - y.from) - Math.abs(x.to - x.from)).slice(0, limit)

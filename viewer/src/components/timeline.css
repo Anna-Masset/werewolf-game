@@ -19,6 +19,8 @@
   border-left: 1px solid var(--panel-edge);
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .tl-band.night { color: #9aa3ff; }
 :root[data-mood='day'] .tl-band.night { color: #4c4f9a; }
