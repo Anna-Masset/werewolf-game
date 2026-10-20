@@ -89,7 +89,7 @@
 .token-name {
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 19px;
+  font-size: calc(19px * var(--label-k, 1));
   fill: var(--ink);
   paint-order: stroke;
   stroke: var(--bg-bottom);
@@ -97,13 +97,13 @@
   stroke-linejoin: round;
 }
 .token-nums {
-  font-size: 15.5px;
+  font-size: calc(15.5px * var(--label-k, 1));
   paint-order: stroke;
   stroke: var(--bg-bottom);
   stroke-width: 4px;
   stroke-linejoin: round;
 }
-.n-pov { font-weight: 700; font-size: 17px; }
+.n-pov { font-weight: 700; font-size: calc(17px * var(--label-k, 1)); }
 .n-sep, .n-village { fill: var(--ink-soft); }
 .n-village { fill: color-mix(in srgb, var(--consensus) 70%, var(--ink)); font-weight: 600; }
 

@@ -1,0 +1,91 @@
+/* ---------- side tabs ---------- */
+.side-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--panel); border: 1px solid var(--panel-edge); }
+.side-tab {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  transition: background 160ms ease, color 160ms ease;
+}
+.side-tab:hover { color: var(--ink); }
+.side-tab.on { background: var(--accent); color: #fff; }
+.side-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.side-body { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 2px; }
+.panel-note { font-size: 12px; margin: 0 0 8px; }
+
+/* ---------- suspicion ---------- */
+.suspicion { padding: 12px 14px; }
+.susp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.susp-row { display: grid; grid-template-columns: 128px 1fr 42px 36px; gap: 8px; align-items: center; font-size: 13px; }
+.susp-row.dead { opacity: 0.5; }
+.susp-name { display: flex; align-items: center; gap: 5px; font-family: var(--font-title); font-weight: 700; white-space: nowrap; overflow: hidden; }
+.susp-role { width: 20px; text-align: center; font-family: var(--font-title); font-weight: 900; color: var(--ink-soft); }
+.susp-role .truth { opacity: 0.6; }
+.susp-pers { font-size: 11px; }
+.susp-bar { height: 10px; background: var(--track); border-radius: 0 5px 5px 0; overflow: hidden; }
+.susp-bar span { display: block; height: 100%; border-radius: 0 5px 5px 0; transition: width 500ms cubic-bezier(.2, .8, .2, 1); }
+.susp-val { text-align: right; font-weight: 700; }
+.susp-delta { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); }
+.susp-delta.up { color: var(--blood); }
+.susp-delta.down { color: var(--good); }
+
+/* ---------- feed ---------- */
+.feed { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+.feed-filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.feed-filters .chip { font-size: 11.5px; padding: 3px 8px; }
+.feed-filters .chip:not(.on) { opacity: 0.55; text-decoration: line-through; }
+.feed-list { display: flex; flex-direction: column; gap: 10px; }
+.feed-step ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.32; }
+.feed-step li { padding-left: 4px; border-left: 3px solid transparent; }
+.feed-head { background: none; border: 0; padding: 0; cursor: pointer; font-size: 12px; color: var(--ink-soft); }
+.feed-head:hover .feed-when { text-decoration: underline; }
+.feed-when { font-family: var(--font-title); font-weight: 700; color: var(--ink); letter-spacing: 0.04em; }
+.feed-step.current { padding: 6px 8px; margin: 0 -8px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, transparent); }
+
+/* ---------- belief chart ---------- */
+.chart-wrap { padding: 8px 12px 6px; position: relative; }
+.chart-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.chart-head h3 { font-size: 0.9rem; }
+.chart-legend { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+.chart-legend .chip { font-size: 11.5px; padding: 2px 8px; }
+.chart-legend .swatch { width: 12px; height: 3px; border-radius: 2px; display: inline-block; }
+.chart-legend .swatch.dashed { background: repeating-linear-gradient(90deg, currentColor 0 4px, transparent 4px 7px) !important; height: 2px; }
+.chart-svg { display: block; width: 100%; overflow: visible; }
+.chart-svg .grid { stroke: var(--track); stroke-width: 1; }
+.chart-svg .axis-label { fill: var(--ink-soft); font-size: 11px; font-family: var(--font-data); }
+.chart-svg .band-night { fill: rgba(80, 90, 210, 0.12); }
+.chart-svg .line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; transition: opacity 160ms ease, stroke-width 160ms ease; }
+.chart-svg .line.muted { stroke: var(--ink-soft); opacity: 0.32; }
+.chart-svg .line.pinned { stroke-width: 2.2; opacity: 1; }
+.chart-svg .line.hot { stroke-width: 3; opacity: 1; }
+.chart-svg .line.faded { opacity: 0.1; }
+.chart-svg .end-label { font-size: 11.5px; font-weight: 600; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.chart-svg .now-line { stroke: var(--accent-strong); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.chart-svg .crosshair { stroke: var(--ink-soft); stroke-width: 1; }
+.chart-svg .ev-marker { font-size: 11px; text-anchor: middle; dominant-baseline: central; }
+.chart-svg .death-dot { stroke: var(--panel); stroke-width: 2; }
+.chart-tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  min-width: 150px;
+  z-index: 5;
+  backdrop-filter: blur(8px);
+}
+.chart-tip h4 { margin: 0 0 4px; font-family: var(--font-title); font-size: 12px; }
+.chart-tip ul { list-style: none; margin: 0; padding: 0; }
+.chart-tip li { display: flex; justify-content: space-between; gap: 10px; }
+.chart-tip li .k { display: flex; align-items: center; gap: 5px; }
+.chart-tip li .sw { width: 10px; height: 3px; border-radius: 2px; background: var(--ink-soft); }

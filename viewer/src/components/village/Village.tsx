@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import type React from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { GameLog, PlayerId, Role } from '../../types/log'
 import type { Pov, PovStep } from '../../lib/pov'
 import { Fire } from './Fire'
@@ -58,6 +59,19 @@ export function Village({ log, pov, frame, focus, showTruth, night, onPick }: Vi
   const narrator = pov === 'narrator'
   const talks = frame.events.filter((e) => e.type === 'conversation' && e.actor && e.target)
   const [hovered, setHovered] = useState<PlayerId | null>(null)
+  // Labels are sized in viewBox units; when the village renders small, scale them up to stay legible.
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [labelK, setLabelK] = useState(1)
+  useLayoutEffect(() => {
+    const el = svgRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => {
+      const h = Math.min(e.contentRect.height, (e.contentRect.width * 860) / 1300)
+      setLabelK(Math.min(1.6, Math.max(1, 560 / Math.max(1, h))))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
   const ballots = ballotsOf(frame.events)
   const tally = tallyOf(ballots)
   const top = tally[0]?.voters.length ?? 0
@@ -66,7 +80,7 @@ export function Village({ log, pov, frame, focus, showTruth, night, onPick }: Vi
   const rx = Math.max(...seats.map((s) => s.x)), ry = -seats[0].y
 
   return (
-    <svg className="village" viewBox="-650 -430 1300 860" role="group" aria-label="Village square">
+    <svg ref={svgRef} className="village" viewBox="-650 -430 1300 860" role="group" aria-label="Village square" style={{ '--label-k': labelK } as React.CSSProperties}>
       <defs>
         <radialGradient id="fireGlow">
           <stop offset="0%" stopColor="#ffb347" stopOpacity="0.55" />

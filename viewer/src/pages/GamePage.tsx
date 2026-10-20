@@ -13,6 +13,10 @@ import { ErrorBox } from '../components/ErrorBox'
 import { DecisionCard } from '../components/DecisionCard'
 import { ballotsOf, tallyOf } from '../components/village/VoteArrows'
 import '../components/decision.css'
+import { SuspicionPanel } from '../components/SuspicionPanel'
+import { EventFeed } from '../components/EventFeed'
+import { BeliefChart } from '../components/BeliefChart'
+import '../components/panels.css'
 import './game.css'
 
 const FOCUS_ROLES: Role[] = ['werewolf', 'seer', 'witch', 'little_girl', 'cupid']
@@ -52,6 +56,8 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
   const [focus, setFocus] = useState<Role>(() => defaultFocus(log, pov))
   const [showTruth, setShowTruth] = useState(false)
   const [warnOpen, setWarnOpen] = useState(warnings.length > 0)
+  const [tab, setTab] = useState<'now' | 'suspicion' | 'feed'>('now')
+  const [chartOpen, setChartOpen] = useState(() => window.innerHeight >= 820)
   useEffect(() => setFocus(defaultFocus(log, pov)), [log, pov])
 
   const frame = track.steps[pb.t]
@@ -67,6 +73,11 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
   const tally = tallyOf(ballotsOf(frame.events))
   const names = Object.fromEntries(log.players.map((p) => [p.id, p.name]))
   const myDecisions = narrator ? [] : step.decisions.filter((d) => d.player === pov)
+  const decisionSteps = narrator ? [] : track.steps.filter((s) => s.step.decisions.some((d) => d.player === pov)).map((s) => s.step.t)
+  const prevDecision = [...decisionSteps].reverse().find((s) => s < pb.t)
+  const nextDecision = decisionSteps.find((s) => s > pb.t)
+  const at = decisionSteps.indexOf(pb.t)
+  const decisionIndex = at >= 0 ? `🧠 decision ${at + 1} / ${decisionSteps.length}` : `🧠 ${decisionSteps.length} decisions`
   const deathStep = me ? track.steps.find((s) => s.dead.has(me.id))?.step : undefined
 
   return (
@@ -119,71 +130,105 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
       )}
 
       <main className="game-main">
-        <section className="village-wrap">
-          <div className={`phase-banner ${night ? 'night' : 'day'}`} key={`${step.phase}-${step.round}`}>
-            <span className="phase-icon">{step.phase === 'end' ? (log.result.winner === 'village' ? '☀️' : '🐺') : night ? '🌙' : '☀️'}</span>
-            <span className="phase-name">{stepLabel(step)}</span>
-            {step.subphase && <span className="phase-sub">{step.subphase}</span>}
-          </div>
-          {frame.ghost && deathStep && (
-            <div className="ghost-banner story">
-              👻 You died ({stepLabel(deathStep)}). You watch as a ghost: your beliefs are frozen and you only see public events.
+        <div className="left-col">
+          <section className="village-wrap">
+            <div className={`phase-banner ${night ? 'night' : 'day'}`} key={`${step.phase}-${step.round}`}>
+              <span className="phase-icon">{step.phase === 'end' ? (log.result.winner === 'village' ? '☀️' : '🐺') : night ? '🌙' : '☀️'}</span>
+              <span className="phase-name">{stepLabel(step)}</span>
+              {step.subphase && <span className="phase-sub">{step.subphase}</span>}
             </div>
+            <button className="chip chart-toggle" onClick={() => setChartOpen(!chartOpen)} aria-pressed={chartOpen}>
+              📈 {chartOpen ? 'Hide' : 'Show'} belief history
+            </button>
+            {frame.ghost && deathStep && (
+              <div className="ghost-banner story">
+                👻 You died ({stepLabel(deathStep)}). You watch as a ghost: your beliefs are frozen and you only see public events.
+              </div>
+            )}
+            <Village log={log} pov={pov} frame={frame} focus={focus} showTruth={showTruth} night={night} />
+          </section>
+          {chartOpen && (
+            <BeliefChart log={log} track={track} t={pb.t} focus={focus} showTruth={showTruth} night={night} height={150} onJump={pb.setT} />
           )}
-          <Village log={log} pov={pov} frame={frame} focus={focus} showTruth={showTruth} night={night} />
-        </section>
+        </div>
 
         <aside className="side">
-          {myDecisions.map((d, i) => (
-            <DecisionCard key={`${pb.t}-${i}`} log={log} track={track} pov={pov} t={pb.t} decision={d} />
-          ))}
-          <div className="panel side-card">
-            <h3>{narrator ? 'What happened' : `What ${me?.name} saw`}</h3>
-            <p className="muted side-sub">{stepLabel(step)}{step.subphase ? ` · ${step.subphase}` : ''}</p>
-            {tally.length > 0 && (
-              <ul className="tally">
-                {tally.map(({ target, voters }) => (
-                  <li key={target} className={voters.length === tally[0].voters.length ? 'lead' : ''}>
-                    <span className="tally-name">{names[target]}{target === pov ? ' (you)' : ''}</span>
-                    <span className="tally-bar">
-                      <span style={{ width: `${(voters.length / tally[0].voters.length) * 70}%` }} />
-                      <span className="num">{voters.length}</span>
-                    </span>
-                    <span className="tally-voters">
-                      ← {voters.map((v, i) => <span key={v}>{i > 0 && ', '}{v === pov ? <b>you</b> : names[v]}</span>)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {lines.length === 0 && tally.length === 0 ? (
-              <p className="story muted">{narrator ? 'Nothing happens in this step.' : 'You see nothing of what happens now.'}</p>
-            ) : (
-              <ul className="step-lines">
-                {lines.map((l, i) => (
-                  <li key={`${pb.t}-${i}`} className={`fade-up story tone-${l.tone ?? 'plain'}`} style={{ animationDelay: `${i * 40}ms` }}>
-                    <span className="line-icon">{l.icon}</span> {l.text}
-                  </li>
-                ))}
-              </ul>
-            )}
+          <div className="side-tabs" role="tablist">
+            {(['now', 'suspicion', 'feed'] as const).map((k) => (
+              <button key={k} role="tab" aria-selected={tab === k} className={`side-tab ${tab === k ? 'on' : ''}`} onClick={() => setTab(k)}>
+                {k === 'now' ? `Now${myDecisions.length ? ' 🧠' : ''}` : k === 'suspicion' ? 'Suspicion' : 'Event feed'}
+              </button>
+            ))}
           </div>
-          <div className="panel side-card legend">
-            <h3>Reading the village</h3>
-            <ul>
-              {!narrator && (
-                <li>
-                  <svg width="26" height="26" viewBox="-13 -13 26 26"><circle r="10" fill="none" stroke={ROLE_COLOR[focus]} strokeWidth="4" strokeDasharray="44 63" transform="rotate(-90)" /></svg>
-                  Thick ring: {me?.name}'s P({ROLE_LABEL[focus]}) for that player.
-                </li>
-              )}
-              <li>
-                <svg width="26" height="26" viewBox="-13 -13 26 26"><circle r="11" fill="none" stroke="var(--consensus)" strokeWidth="2.5" strokeDasharray="30 69" transform="rotate(-90)" /></svg>
-                Thin gold ring: village consensus P(Werewolf), averaged over living villagers.
-              </li>
-              <li><span className="legend-q">?</span> Role unknown to {narrator ? 'nobody' : me?.name}. Dead players show their revealed card.</li>
-              <li>⚔️ aggressive · 🤫 discreet · 🎭 manipulative · 🤝 trusting</li>
-            </ul>
+          <div className="side-body">
+            {tab === 'now' && (
+              <>
+                {!narrator && decisionSteps.length > 0 && (
+                  <div className="dc-nav">
+                    <button className="chip" disabled={prevDecision == null} onClick={() => prevDecision != null && pb.setT(prevDecision)}>◀ prev</button>
+                    <span className="muted num">{decisionIndex}</span>
+                    <button className="chip" disabled={nextDecision == null} onClick={() => nextDecision != null && pb.setT(nextDecision)}>next ▶</button>
+                  </div>
+                )}
+                {myDecisions.map((d, i) => (
+                  <DecisionCard key={`${pb.t}-${i}`} log={log} track={track} pov={pov} t={pb.t} decision={d} />
+                ))}
+                <div className="panel side-card">
+                  <h3>{narrator ? 'What happened' : `What ${me?.name} saw`}</h3>
+                  <p className="muted side-sub">{stepLabel(step)}{step.subphase ? ` · ${step.subphase}` : ''}</p>
+                  {tally.length > 0 && (
+                    <ul className="tally">
+                      {tally.map(({ target, voters }) => (
+                        <li key={target} className={voters.length === tally[0].voters.length ? 'lead' : ''}>
+                          <span className="tally-name">{names[target]}{target === pov ? ' (you)' : ''}</span>
+                          <span className="tally-bar">
+                            <span style={{ width: `${(voters.length / tally[0].voters.length) * 70}%` }} />
+                            <span className="num">{voters.length}</span>
+                          </span>
+                          <span className="tally-voters">
+                            ← {voters.map((v, i) => <span key={v}>{i > 0 && ', '}{v === pov ? <b>you</b> : names[v]}</span>)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {lines.length === 0 && tally.length === 0 ? (
+                    <p className="story muted">{narrator ? 'Nothing happens in this step.' : 'You see nothing of what happens now.'}</p>
+                  ) : (
+                    <ul className="step-lines">
+                      {lines.map((l, i) => (
+                        <li key={`${pb.t}-${i}`} className={`fade-up story tone-${l.tone ?? 'plain'}`} style={{ animationDelay: `${i * 40}ms` }}>
+                          <span className="line-icon">{l.icon}</span> {l.text}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="panel side-card legend">
+                  <h3>Reading the village</h3>
+                  <ul>
+                    {!narrator && (
+                      <li>
+                        <svg width="26" height="26" viewBox="-13 -13 26 26"><circle r="10" fill="none" stroke={ROLE_COLOR[focus]} strokeWidth="4" strokeDasharray="44 63" transform="rotate(-90)" /></svg>
+                        Thick ring: {me?.name}'s P({ROLE_LABEL[focus]}) for that player.
+                      </li>
+                    )}
+                    <li>
+                      <svg width="26" height="26" viewBox="-13 -13 26 26"><circle r="11" fill="none" stroke="var(--consensus)" strokeWidth="2.5" strokeDasharray="30 69" transform="rotate(-90)" /></svg>
+                      Thin gold ring: village consensus P(Werewolf), averaged over living villagers.
+                    </li>
+                    <li><span className="legend-q">?</span> Role unknown to {narrator ? 'nobody' : me?.name}. Dead players show their revealed card.</li>
+                    <li>⚔️ aggressive · 🤫 discreet · 🎭 manipulative · 🤝 trusting</li>
+                  </ul>
+                </div>
+              </>
+            )}
+            {tab === 'suspicion' && (
+              <div className="panel"><SuspicionPanel log={log} track={track} t={pb.t} focus={focus} showTruth={showTruth} /></div>
+            )}
+            {tab === 'feed' && (
+              <div className="panel"><EventFeed log={log} track={track} t={pb.t} onJump={pb.setT} /></div>
+            )}
           </div>
         </aside>
       </main>

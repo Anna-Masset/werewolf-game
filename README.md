@@ -38,6 +38,20 @@ Other commands:
 
 Keyboard shortcuts in the game view: **← / →** step, **space** play/pause, **Home / End** jump.
 
+### What's on screen
+
+- **Village:** each token has two rings. The thick one is the POV's P(*focus role*); pick the focus
+  role with "Watching for". The thin gold one is the village consensus P(Werewolf). Both numbers
+  are printed. During votes, arrows go from voter to target; hover a player to isolate their arrows.
+- **Now tab:** what the POV saw in this step, the vote tally, and a **decision card** at each POV
+  decision: observations since the last decision → belief *b* → *U*(*b*, *a*) for every action →
+  π(*b*) = argmax. Use ◀ / ▶ to jump between decisions (🧠 on the timeline).
+- **Suspicion tab:** sorted bars with ▲/▼ change since the previous step.
+- **Event feed tab:** everything the POV experienced so far, filterable by type. Click a step to jump to it.
+- **Belief history:** one line per player, drawn up to the current step only, so nothing is spoiled.
+  Click names to pin up to 4 coloured lines, hover for values, and click the chart to jump.
+  With *Show truth* on, the true werewolves' lines are dashed.
+
 ## Adding a log file
 
 Either:
