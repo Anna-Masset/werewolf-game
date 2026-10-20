@@ -1,0 +1,214 @@
+/* ==========================================================================
+   Theme: night (deep indigo + moonlight) and day (parchment + amber).
+   The <html> element carries data-mood="night" | "day"; colors are registered
+   custom properties so the switch animates smoothly.
+   ========================================================================== */
+
+@property --bg-top { syntax: '<color>'; inherits: true; initial-value: #0d0f2b; }
+@property --bg-bottom { syntax: '<color>'; inherits: true; initial-value: #1d2150; }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #e9e6f8; }
+@property --ink-soft { syntax: '<color>'; inherits: true; initial-value: #a9a8cf; }
+@property --panel { syntax: '<color>'; inherits: true; initial-value: rgba(22, 24, 62, 0.78); }
+@property --panel-edge { syntax: '<color>'; inherits: true; initial-value: rgba(190, 196, 255, 0.18); }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #c8d3ff; }
+@property --accent-strong { syntax: '<color>'; inherits: true; initial-value: #f2f5ff; }
+@property --token { syntax: '<color>'; inherits: true; initial-value: #262a63; }
+@property --token-edge { syntax: '<color>'; inherits: true; initial-value: #5a5fa8; }
+@property --ground { syntax: '<color>'; inherits: true; initial-value: #23264f; }
+@property --ground-edge { syntax: '<color>'; inherits: true; initial-value: #34386d; }
+@property --track { syntax: '<color>'; inherits: true; initial-value: rgba(200, 205, 255, 0.14); }
+
+:root {
+  --font-title: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-story: 'IM Fell English', Georgia, 'Times New Roman', serif;
+  --font-data: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --consensus: #e3b04b;
+  --blood: #c8323c;
+  --good: #3fae7a;
+  --radius: 14px;
+  --mood-ms: 1100ms;
+  color-scheme: dark;
+  transition:
+    --bg-top var(--mood-ms) ease, --bg-bottom var(--mood-ms) ease, --ink var(--mood-ms) ease,
+    --ink-soft var(--mood-ms) ease, --panel var(--mood-ms) ease, --panel-edge var(--mood-ms) ease,
+    --accent var(--mood-ms) ease, --accent-strong var(--mood-ms) ease, --token var(--mood-ms) ease,
+    --token-edge var(--mood-ms) ease, --ground var(--mood-ms) ease, --ground-edge var(--mood-ms) ease,
+    --track var(--mood-ms) ease;
+}
+
+:root[data-mood='day'] {
+  --bg-top: #f6ead0;
+  --bg-bottom: #e6cd98;
+  --ink: #3b2914;
+  --ink-soft: #7a5f3c;
+  --panel: rgba(255, 249, 235, 0.82);
+  --panel-edge: rgba(122, 82, 30, 0.22);
+  --accent: #c87a14;
+  --accent-strong: #8a4d05;
+  --token: #fbf3df;
+  --token-edge: #c79a55;
+  --ground: #e2c891;
+  --ground-edge: #c9a86a;
+  --track: rgba(110, 72, 25, 0.14);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-data);
+  font-size: 14px;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom)) fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Paper grain over everything, very subtle. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Stars fade out by day. */
+.sky {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--mood-ms) ease;
+}
+.sky.stars {
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 18%, #fff9 50%, transparent 51%),
+    radial-gradient(1px 1px at 28% 8%, #fff8 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 44% 22%, #fffa 50%, transparent 51%),
+    radial-gradient(1px 1px at 63% 12%, #fff7 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 78% 26%, #fff9 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 6%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 6% 42%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 94% 48%, #fff6 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 4%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 36% 38%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 71% 40%, #fff5 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 20% 60%, #fff4 50%, transparent 51%);
+}
+.sky.moonglow {
+  background: radial-gradient(600px 400px at 85% -5%, rgba(200, 212, 255, 0.22), transparent 70%);
+}
+.sky.sunglow {
+  background: radial-gradient(700px 480px at 85% -10%, rgba(255, 196, 92, 0.45), transparent 70%);
+}
+:root[data-mood='day'] .sky.stars, :root[data-mood='day'] .sky.moonglow { opacity: 0; }
+:root[data-mood='night'] .sky.sunglow { opacity: 0; }
+
+#root { position: relative; z-index: 1; }
+
+h1, h2, h3 { font-family: var(--font-title); letter-spacing: 0.04em; margin: 0; }
+h1 { font-weight: 900; }
+h2 { font-weight: 700; font-size: 1.15rem; }
+h3 { font-weight: 700; font-size: 0.95rem; }
+
+.story { font-family: var(--font-story); }
+.num { font-variant-numeric: tabular-nums; }
+
+a { color: var(--accent); }
+
+button, select, input { font: inherit; color: inherit; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 120ms ease, background 200ms ease, border-color 200ms ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: scale(0.96); }
+.btn:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 70%, black));
+  color: #fff;
+  border-color: transparent;
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.btn.icon { width: 36px; height: 36px; padding: 0; font-size: 15px; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-edge);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: all 160ms ease;
+}
+.chip:hover { color: var(--ink); }
+.chip.on { background: var(--panel); color: var(--ink); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  border: 1px solid var(--panel-edge);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.badge.mock { border-style: dashed; }
+
+.error-box {
+  border: 1px solid #d0454c;
+  background: rgba(200, 50, 60, 0.12);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+}
+.error-box h3 { color: #e0646b; margin-bottom: 6px; }
+.error-box ul { margin: 6px 0 0; padding-left: 18px; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+.warn-box {
+  border: 1px solid var(--consensus);
+  background: rgba(227, 176, 75, 0.1);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+}
+
+.muted { color: var(--ink-soft); }
+
+@keyframes fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fade-up 260ms ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --mood-ms: 0ms; }
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

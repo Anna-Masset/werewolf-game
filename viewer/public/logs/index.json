@@ -1,0 +1,26 @@
+[
+  {
+    "file": "game_13p.json",
+    "title": "The Long Night of Thiercelieux",
+    "players": 13,
+    "rounds": 4,
+    "winner": "village",
+    "mock": true
+  },
+  {
+    "file": "game_9p.json",
+    "title": "What the Little Girl Saw",
+    "players": 9,
+    "rounds": 3,
+    "winner": "werewolves",
+    "mock": true
+  },
+  {
+    "file": "game_short.json",
+    "title": "Two Seers, One Liar",
+    "players": 8,
+    "rounds": 2,
+    "winner": "village",
+    "mock": true
+  }
+]
