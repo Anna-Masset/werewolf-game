@@ -119,7 +119,7 @@ not game logic. Beliefs are shaped by simple scripted nudges, and decision value
 | file | players | winner | covers |
 |---|---|---|---|
 | `game_13p.json` | 13 | village | witch heals and poisons, little girl caught, seer finds a wolf, a wolf bluffs "seer", tied vote → runoff |
-| `game_9p.json` | 9 | werewolves | little girl glimpses a wolf, seer killed night 1, heal + poison the same night |
+| `game_9p.json` | 9 | werewolves | little girl glimpses a wolf and is voted out anyway, seer killed night 1, witch never uses her potions |
 | `game_short.json` | 8 | village | 2 rounds; counter-claimed seer (bluff), both potions |
 
 `summary.csv` mixes one row per mock log with 60 random rows from a seeded RNG.

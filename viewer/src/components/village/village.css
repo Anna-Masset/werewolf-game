@@ -115,3 +115,28 @@
   animation: dash 1.2s linear infinite;
 }
 @keyframes dash { to { stroke-dashoffset: -28; } }
+
+/* ---------- votes ---------- */
+:root { --vote-other: #8f96d8; }
+:root[data-mood='day'] { --vote-other: #8a6a3c; }
+.vote-arrow {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 520ms ease-out forwards;
+  transition: opacity 180ms ease;
+}
+.vote-arrow.lead { stroke: var(--blood); opacity: 0.85; }
+.vote-arrow.other { stroke: var(--vote-other); opacity: 0.75; }
+.vote-arrow.mine { stroke-width: 5.5; opacity: 1; }
+.vote-arrow.dim { opacity: 0.08; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.vote-count { animation: pop 380ms cubic-bezier(.2, 1.6, .4, 1) 300ms both; }
+.vote-count rect { fill: var(--panel); stroke: var(--vote-other); stroke-width: 2; }
+.vote-count.lead rect { fill: var(--blood); stroke: none; }
+.vote-count text { text-anchor: middle; dominant-baseline: central; font-weight: 700; font-size: 16px; fill: var(--ink); }
+.vote-count.lead text { fill: #fff; }
+.vote-count .tie-label { fill: var(--blood) !important; font-family: var(--font-title); font-size: 15px; letter-spacing: 0.08em; }

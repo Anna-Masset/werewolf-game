@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import type { GameLog, PlayerId, Role } from '../../types/log'
 import type { Pov, PovStep } from '../../lib/pov'
 import { Fire } from './Fire'
 import { Token } from './Token'
+import { VoteArrows, VoteCounts, ballotsOf, tallyOf } from './VoteArrows'
 import './village.css'
 
 export interface VillageProps {
@@ -52,8 +54,15 @@ export function Village({ log, pov, frame, focus, showTruth, night, onPick }: Vi
   const seats = seatPositions(log.players.length)
   const pos = Object.fromEntries(log.players.map((p, i) => [p.id, seats[i]]))
   const marks = marksFor(frame)
+  if (pov !== 'narrator' && frame.step.decisions.some((d) => d.player === pov)) (marks[pov] ??= []).unshift('🧠')
   const narrator = pov === 'narrator'
   const talks = frame.events.filter((e) => e.type === 'conversation' && e.actor && e.target)
+  const [hovered, setHovered] = useState<PlayerId | null>(null)
+  const ballots = ballotsOf(frame.events)
+  const tally = tallyOf(ballots)
+  const top = tally[0]?.voters.length ?? 0
+  const leaders = new Set(tally.filter((x) => x.voters.length === top).map((x) => x.target))
+  const tied = leaders.size > 1
   const rx = Math.max(...seats.map((s) => s.x)), ry = -seats[0].y
 
   return (
@@ -86,6 +95,8 @@ export function Village({ log, pov, frame, focus, showTruth, night, onPick }: Vi
         return <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="talk-line" />
       })}
 
+      <VoteArrows ballots={ballots} pos={pos} leaders={leaders} pov={pov} hovered={hovered} />
+
       {log.players.map((p) => {
         const isPov = p.id === pov
         const dist = frame.beliefs?.[p.id]
@@ -107,9 +118,12 @@ export function Village({ log, pov, frame, focus, showTruth, night, onPick }: Vi
             marks={marks[p.id] ?? []}
             dimmed={frame.ghost && !isPov}
             onClick={onPick ? () => onPick(p.id) : undefined}
+            onHover={(on) => setHovered(on ? p.id : null)}
           />
         )
       })}
+
+      <VoteCounts tally={tally} pos={pos} leaders={leaders} tied={tied} />
     </svg>
   )
 }

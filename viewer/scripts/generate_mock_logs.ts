@@ -238,15 +238,17 @@ class Story {
     return victim
   }
 
+  /** The witch's turn: two separate decisions (heal or not, then poison or not). */
   witch(round: number, victim: PlayerId, heal: boolean, poison?: PlayerId) {
     const w = this.byRole('witch')!
     if (!this.alive.has(w)) return
     this.begin(round, 'night', 'witch')
-    const opts: [string, PlayerId | null][] = [['pass', null]]
-    if (!this.used.heal && victim !== w) opts.push(['heal', victim])
-    if (!this.used.poison) opts.push(...this.targets(w, 'poison'))
-    const choice: [string, PlayerId | null] = heal ? ['heal', victim] : poison ? ['poison', poison] : ['pass', null]
-    this.decide(w, 'potion', opts, choice)
+    if (!this.used.heal && victim !== w) {
+      this.decide(w, 'potion', [['pass', null], ['heal', victim]], heal ? ['heal', victim] : ['pass', null])
+    }
+    if (!this.used.poison) {
+      this.decide(w, 'potion', [['pass', null], ...this.targets(w, 'poison', (x) => x !== victim)], poison ? ['poison', poison] : ['pass', null])
+    }
     if (heal) { this.used.heal = true; this.ev('potion', w, victim, { kind: 'heal' }, [w]) }
     if (poison) { this.used.poison = true; this.ev('potion', w, poison, { kind: 'poison' }, [w]) }
   }
@@ -274,6 +276,16 @@ class Story {
       const f = kind === 'defend' ? (wolf ? 1.9 : 0.85) : wolf ? 0.6 : 1.2
       this.everyone(speaker, 'werewolf', () => f)
     }
+    // A claimant whose accusation is confirmed is believed; rival claimants of that role are exposed.
+    if (wolf) {
+      for (const [claimant, claimed, accused] of this.claims) {
+        if (accused !== id || !this.alive.has(claimant)) continue
+        this.everyone(claimant, claimed, () => 6)
+        for (const [rival, r2] of this.claims) {
+          if (rival !== claimant && r2 === claimed && this.alive.has(rival)) this.everyone(rival, 'werewolf', () => 8)
+        }
+      }
+    }
     if (afterVote) {
       for (const [voter, target] of Object.entries(this.ballots)) {
         if (voter === id || !this.alive.has(voter)) continue
@@ -283,6 +295,7 @@ class Story {
     }
   }
   private said: [PlayerId, 'accuse' | 'defend', PlayerId][] = []
+  private claims: [PlayerId, Role, PlayerId | undefined][] = []
 
   dawn(round: number, deaths: PlayerId[]) {
     this.begin(round, 'day', 'dawn')
@@ -338,6 +351,7 @@ class Story {
     opts.push([`claim_${role}`, accuse ?? null])
     this.decide(a, 'statement', opts, [`claim_${role}`, accuse ?? null])
     this.ev('statement', a, accuse ?? null, { kind: 'claim_role', claimed_role: role, text }, 'all')
+    this.claims.push([a, role, accuse])
     // Wolves take a claim very seriously when it correctly names one of them.
     this.everyone(a, role, (o) => (this.isWolf(o) ? (this.isWolf(a) ? 1 : accuse && this.isWolf(accuse) ? 40 : 6) : 5))
     // Whoever really holds that card now knows the claimant is lying.
@@ -351,6 +365,18 @@ class Story {
 
   /** One ballot. `votes` maps voter name -> target name. Returns tally and the leaders. */
   vote(round: number, votes: Record<string, string>, ballot: 'main' | 'runoff', allowed?: PlayerId[]) {
+    // Village voters vote for their top suspect. If the scripted target isn't it yet, shift the
+    // belief while still in the previous step, so the b shown next to U(b, a) is consistent.
+    for (const [vn, tn] of Object.entries(votes)) {
+      const v = this.id(vn), t = this.id(tn)
+      if (this.isWolf(v)) continue
+      const pool = (allowed ?? this.livingOthers(v)).filter((x) => x !== v && x !== t)
+      const rival = Math.max(0, ...pool.map((x) => this.P(v, x, 'werewolf')))
+      const mine = this.P(v, t, 'werewolf')
+      for (let k = 0; k < 6 && mine > 0 && this.P(v, t, 'werewolf') < Math.max(0, ...pool.map((x) => this.P(v, x, 'werewolf'))) + 0.02; k++) {
+        this.scale(v, t, 'werewolf', ((rival + 0.05) / this.P(v, t, 'werewolf')) * 1.1)
+      }
+    }
     this.begin(round, 'day', ballot === 'main' ? 'vote' : 'runoff')
     const tally: Record<PlayerId, number> = {}
     this.ballots = {}
@@ -528,8 +554,8 @@ function game13(): GameLog {
 
 // ============================================================================
 //  Game 2: 9 players, werewolves win in 3 rounds.
-//  Beats: seer killed night 1 (witch keeps her potions) · little girl glimpses
-//  Romain and is voted out for saying so · heal + poison used night 2.
+//  Beats: seer killed night 1 · little girl glimpses Romain and is voted out
+//  for saying so · the (discreet) witch never dares to use her potions.
 // ============================================================================
 function game9(): GameLog {
   const s = new Story([
@@ -566,10 +592,10 @@ function game9(): GameLog {
     Sophie: 'Romain', Victor: 'Chloé', Zoé: 'Chloé',
   })
 
-  v = s.wolves(2, $('Sophie'))
-  s.witch(2, v, true, $('Victor'))
-  s.kill($('Victor'), 2, 'night', 'poison')
-  s.dawn(2, [$('Victor')])
+  v = s.wolves(2, $('Victor'))
+  s.witch(2, v, false)
+  s.kill(v, 2, 'night', 'wolves')
+  s.dawn(2, [v])
   s.begin(2, 'day', 'conversations')
   s.talk($('Margaux'), $('Théo'), 'suspicious', 'suspicious', 'Chloé\'s warning')
   s.talk($('Zoé'), $('Antoine'), 'convincing', 'suspicious')

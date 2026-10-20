@@ -76,9 +76,11 @@ export function Timeline({ track, pb }: { track: PovTrack; pb: Playback }) {
         <div className="tl-cells" style={{ gridTemplateColumns: `repeat(${n}, 1fr)` }}>
           {steps.map((s, i) => {
             const groups = MARKED.filter((m) => s.events.some((e) => m.test(e.type, e.payload))).map((m) => m.group)
+            const decides = track.pov !== 'narrator' && s.step.decisions.some((d) => d.player === track.pov)
             return (
               <div key={i} className={`tl-cell ${s.step.phase} ${i <= pb.t ? 'past' : ''} ${i === pb.t ? 'current' : ''}`}>
                 <div className="tl-markers">
+                  {decides && <span className="tl-marker" title="Your decision">🧠</span>}
                   {groups.map((g) => (
                     <span key={g} className={`tl-marker ${g}`} title={GROUP_LABEL[g]}>{GROUP_ICON[g]}</span>
                   ))}
@@ -100,6 +102,7 @@ export function Timeline({ track, pb }: { track: PovTrack; pb: Playback }) {
         />
       </div>
       <div className="tl-legend muted">
+        {track.pov !== 'narrator' && <span>🧠 Your decisions</span>}
         {MARKED.map((m) => <span key={m.group}>{GROUP_ICON[m.group]} {GROUP_LABEL[m.group]}</span>)}
       </div>
     </div>

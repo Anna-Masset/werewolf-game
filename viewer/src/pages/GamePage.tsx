@@ -10,6 +10,9 @@ import { usePlayback } from '../state/playback'
 import { Village } from '../components/village/Village'
 import { Timeline } from '../components/Timeline'
 import { ErrorBox } from '../components/ErrorBox'
+import { DecisionCard } from '../components/DecisionCard'
+import { ballotsOf, tallyOf } from '../components/village/VoteArrows'
+import '../components/decision.css'
 import './game.css'
 
 const FOCUS_ROLES: Role[] = ['werewolf', 'seer', 'witch', 'little_girl', 'cupid']
@@ -59,7 +62,11 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
   const rolesInGame = FOCUS_ROLES.filter((r) => log.players.some((p) => p.role === r))
   const narrator = pov === 'narrator'
   const me = log.players.find((p) => p.id === pov)
-  const lines = frame.events.map((e) => narrate(e, log, pov, frame.known))
+  // Individual ballots are summarized in the tally (and drawn as arrows), not listed one by one.
+  const lines = frame.events.filter((e) => e.type !== 'vote').map((e) => narrate(e, log, pov, frame.known))
+  const tally = tallyOf(ballotsOf(frame.events))
+  const names = Object.fromEntries(log.players.map((p) => [p.id, p.name]))
+  const myDecisions = narrator ? [] : step.decisions.filter((d) => d.player === pov)
   const deathStep = me ? track.steps.find((s) => s.dead.has(me.id))?.step : undefined
 
   return (
@@ -127,10 +134,29 @@ function Game({ log, warnings, pov, setPov }: { log: GameLog; warnings: string[]
         </section>
 
         <aside className="side">
+          {myDecisions.map((d, i) => (
+            <DecisionCard key={`${pb.t}-${i}`} log={log} track={track} pov={pov} t={pb.t} decision={d} />
+          ))}
           <div className="panel side-card">
             <h3>{narrator ? 'What happened' : `What ${me?.name} saw`}</h3>
             <p className="muted side-sub">{stepLabel(step)}{step.subphase ? ` · ${step.subphase}` : ''}</p>
-            {lines.length === 0 ? (
+            {tally.length > 0 && (
+              <ul className="tally">
+                {tally.map(({ target, voters }) => (
+                  <li key={target} className={voters.length === tally[0].voters.length ? 'lead' : ''}>
+                    <span className="tally-name">{names[target]}{target === pov ? ' (you)' : ''}</span>
+                    <span className="tally-bar">
+                      <span style={{ width: `${(voters.length / tally[0].voters.length) * 70}%` }} />
+                      <span className="num">{voters.length}</span>
+                    </span>
+                    <span className="tally-voters">
+                      ← {voters.map((v, i) => <span key={v}>{i > 0 && ', '}{v === pov ? <b>you</b> : names[v]}</span>)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {lines.length === 0 && tally.length === 0 ? (
               <p className="story muted">{narrator ? 'Nothing happens in this step.' : 'You see nothing of what happens now.'}</p>
             ) : (
               <ul className="step-lines">

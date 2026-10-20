@@ -24,6 +24,7 @@ export interface TokenProps {
   dimmed?: boolean
   onClick?: () => void
   scale?: number
+  onHover?: (on: boolean) => void
 }
 
 const R_INNER = 45
@@ -63,6 +64,8 @@ export function Token(props: TokenProps) {
       className={`token ${dead ? 'dead' : ''} ${isPov ? 'pov' : ''} ${props.dimmed ? 'dimmed' : ''}`}
       transform={`translate(${x},${y}) scale(${props.scale ?? 1})`}
       onClick={props.onClick}
+      onMouseEnter={() => props.onHover?.(true)}
+      onMouseLeave={() => props.onHover?.(false)}
       role="img"
       aria-label={tip.replace(/\n/g, '. ')}
     >
@@ -119,9 +122,11 @@ export function Token(props: TokenProps) {
       {marks.length > 0 && (
         <g className="marks" transform="translate(34,-34)">
           {marks.map((m, i) => (
-            <g key={i} transform={`translate(${i * 22},0)`} className="mark">
-              <circle r={12} />
-              <text y={1}>{m}</text>
+            <g key={i} transform={`translate(${i * 24},0)`}>
+              <g className="mark">
+                <circle r={12} />
+                <text y={1}>{m}</text>
+              </g>
             </g>
           ))}
         </g>
