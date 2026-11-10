@@ -3,12 +3,14 @@
 AA228/CS238 final project: a Werewolf (*Les Loups-garous de Thiercelieux*) simulator where every
 player is an agent that keeps a belief over the hidden roles and plans its actions.
 
-This repository currently contains the **viewer only**: a static web app that replays games from
-JSON log files. The simulator will write logs in the same format later. Until then, the viewer runs
-on hand-scripted **mock** logs.
+The repository has two parts: the **viewer**, a static web app that replays games from JSON log
+files, and the **simulator** in `sim/` (Julia, in progress; see [sim/README.md](sim/README.md)),
+which writes logs in the same format. Until the simulator plays full games, the viewer runs on
+hand-scripted **mock** logs.
 
 ```
 schema/game_log.schema.json   the log format (the contract between simulator and viewer)
+sim/                          Julia simulator (log writer so far; engine and agents to come)
 viewer/                       Vite + React + TypeScript app (no backend)
   public/logs/                game logs + index.json (the list on the start screen)
   public/results/summary.csv  experiment summary (mock for now)
