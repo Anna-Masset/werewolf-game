@@ -4,7 +4,7 @@
 export type PlayerId = string
 export type Role = 'werewolf' | 'seer' | 'witch' | 'little_girl' | 'villager' | 'cupid'
 export type Team = 'village' | 'werewolves' | 'lovers'
-export type Personality = 'aggressive' | 'discreet' | 'manipulative' | 'trusting'
+export type Personality = 'aggressive' | 'discreet' | 'manipulative' | 'trusting' | 'none'
 export type Phase = 'setup' | 'night' | 'day' | 'end'
 export type Visibility = 'all' | PlayerId[]
 

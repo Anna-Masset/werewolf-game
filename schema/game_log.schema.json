@@ -86,7 +86,7 @@
     "playerId": { "type": "string", "pattern": "^p[0-9]{2}$" },
     "role": { "enum": ["werewolf", "seer", "witch", "little_girl", "villager", "cupid"] },
     "team": { "enum": ["village", "werewolves", "lovers"] },
-    "personality": { "enum": ["aggressive", "discreet", "manipulative", "trusting"] },
+    "personality": { "enum": ["aggressive", "discreet", "manipulative", "trusting", "none"], "description": "none: the game has no personalities." },
     "phase": { "enum": ["setup", "night", "day", "end"] },
     "probability": { "type": "number", "minimum": 0, "maximum": 1 },
 

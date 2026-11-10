@@ -80,9 +80,10 @@ export function winRateByRole(rows: GameRow[]): Rate[] {
   return [...m.values()]
 }
 
-/** For each personality and team: how often such a player ended on the winning team. */
+/** For each personality and team: how often such a player ended on the winning team. Empty if no player has one. */
 export function winRateByPersonality(rows: GameRow[]): { personality: Personality; village: Rate; werewolves: Rate }[] {
   const pers: Personality[] = ['aggressive', 'discreet', 'manipulative', 'trusting']
+  if (!rows.some((g) => g.roster.some((p) => p.personality !== 'none'))) return []
   return pers.map((personality) => {
     const village = { key: 'village', wins: 0, n: 0 }, werewolves = { key: 'werewolves', wins: 0, n: 0 }
     for (const g of rows) for (const p of g.roster) {

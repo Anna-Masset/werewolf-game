@@ -40,7 +40,7 @@ export function SuspicionPanel({ log, track, t, focus, showTruth }: {
                   {known ? ROLE_ICON[known] : truth ? <span className="truth">{ROLE_ICON[truth]}</span> : '?'}
                 </span>
                 {p.name}
-                <span className="susp-pers" title={p.personality}>{PERSONALITY_ICON[p.personality]}</span>
+                {p.personality !== 'none' && <span className="susp-pers" title={p.personality}>{PERSONALITY_ICON[p.personality]}</span>}
                 {dead && <span className="muted"> ✝</span>}
               </span>
               <span className="susp-bar">

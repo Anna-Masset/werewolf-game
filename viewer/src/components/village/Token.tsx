@@ -49,7 +49,7 @@ export function Token(props: TokenProps) {
   const { player, x, y, isPov, dead, knownRole, truthRole, pFocus, focus, pVillage, dist, marks } = props
   const shownRole = knownRole ?? truthRole
   const tip = [
-    `${player.name} (${PERSONALITY_LABEL[player.personality]})`,
+    player.personality === 'none' ? player.name : `${player.name} (${PERSONALITY_LABEL[player.personality]})`,
     knownRole ? `Known role: ${ROLE_LABEL[knownRole]}` : truthRole ? `True role: ${ROLE_LABEL[truthRole]}` : 'Role unknown',
     dead ? 'Dead' : 'Alive',
     pVillage != null ? `Village P(werewolf): ${pct(pVillage)}` : null,
@@ -113,10 +113,12 @@ export function Token(props: TokenProps) {
       )}
       {truthRole && !knownRole && !dead && <circle r={37} className="truth-edge" />}
 
-      <g transform="translate(-32,-32)" className="persona">
-        <circle r={13} />
-        <text y={1}>{PERSONALITY_ICON[player.personality]}</text>
-      </g>
+      {player.personality !== 'none' && (
+        <g transform="translate(-32,-32)" className="persona">
+          <circle r={13} />
+          <text y={1}>{PERSONALITY_ICON[player.personality]}</text>
+        </g>
+      )}
       {dead && <text className="skull" x={30} y={-28}>✝</text>}
 
       {marks.length > 0 && (

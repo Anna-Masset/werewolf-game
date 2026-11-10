@@ -78,7 +78,7 @@ export function ExperimentsPage() {
               <Legend />
             </section>
 
-            <section className="panel exp-card">
+            {byPers.length > 0 && <section className="panel exp-card">
               <h2>Win rate by personality</h2>
               <p className="muted exp-note">For each personality, how often its players won, split by the team they were on.</p>
               <div className="bars">
@@ -91,7 +91,7 @@ export function ExperimentsPage() {
                 ))}
               </div>
               <Legend />
-            </section>
+            </section>}
           </div>
 
           <section className="panel exp-card games">

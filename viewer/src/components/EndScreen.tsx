@@ -103,7 +103,7 @@ export function EndScreen({ log, track, pov, night, onClose, onJump }: {
                 const p = log.players.find((x) => x.id === m.id)!
                 return (
                   <li key={m.id} className={m.id === pov ? 'me' : ''}>
-                    <span className="mind-name">{ROLE_ICON[p.role]} {p.name} <span title={p.personality}>{PERSONALITY_ICON[p.personality]}</span></span>
+                    <span className="mind-name">{ROLE_ICON[p.role]} {p.name} {p.personality !== 'none' && <span title={p.personality}>{PERSONALITY_ICON[p.personality]}</span>}</span>
                     <span className="mind-bar"><span style={{ width: `${m.mean * 100}%` }} /></span>
                     <span className="num">{pct(m.mean)}</span>
                   </li>

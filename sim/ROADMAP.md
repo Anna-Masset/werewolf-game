@@ -17,6 +17,30 @@ are glue (Claude). The engine, models, beliefs, agents, planners and evaluation 
 
 ---
 
+## First version: due Friday Nov 13 (project update)
+
+**Setup:** 7 players, 2 werewolves, 1 seer, 4 villagers, no personalities (`add_player!` without the
+last argument logs `none`, and the viewer hides the badges). There's no witch or little girl yet,
+so skip those rule questions in B1.
+
+**Why this size helps:** there are only 7!/(2!·1!·4!) = **105** role assignments in total. A
+villager considers 60 of them, the seer 15 after setup, and a wolf 5. So for this version the
+belief can be **exact**: a discrete state filter over the assignments (Reader 19.2). The
+particle filter waits for 13 players.
+
+| when | what | milestone |
+|---|---|---|
+| Tue–Wed | `RULES.md`, engine (night: seer, wolves; dawn; day: vote), random agents, counting beliefs, logs open in the viewer | B1 |
+| Wed–Thu | simple role-based models of the others (e.g. how a wolf votes vs a villager), then the exact filter over the 105 assignments | B2-lite, B3-exact |
+| Thu–Fri | a greedy agent (vote for the most suspected player; the seer inspects the most uncertain one), greedy vs random over many seeds, win rates, 1–2 showcase games for the slides | B4-lite |
+| after Friday | QMDP, POMCP, witch and little girl, 13 players with a particle filter, personalities | B4–B7 |
+
+**Decide early:** do you include **statements** (accuse, claim seer) in this version? Without
+them, the seer's knowledge can only reach the village through her vote. The suspicion gauges will
+mostly move on votes and revealed cards. One `claim_role` / `accuse` statement before the vote
+makes the game much more interesting to show, at the cost of one more subphase and one more
+likelihood. Do it only if B1–B3 are done by Thursday.
+
 ## B1: game engine and random agents
 
 **Goal:** full games of random agents that run start to finish and replay correctly in the viewer.

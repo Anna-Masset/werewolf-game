@@ -36,7 +36,7 @@ Player ids can be integers (`3` → `"p03"`) or strings. Roles, phases, kinds, .
 | call | what it does |
 |---|---|
 | `GameLog(seed=42, role_counts=Dict(:werewolf=>3, ...), config=Dict(...), title=nothing)` | new log |
-| `add_player!(log, i, name, role, team, personality)` | one entry in `players` |
+| `add_player!(log, i, name, role, team, personality=:none)` | one entry in `players` (leave out the personality for games without them) |
 | `begin_step!(log, round, phase; subphase="vote")` | starts a new step; `t` is automatic |
 | `add_event!(log, type, actor, target, payload=Dict(); visible_to=:all)` | event in the current step; `visible_to` is `:all` or a list of players |
 | `set_belief!(log, observer, target, Dict(role=>p))` | one role distribution (missing roles = 0) |

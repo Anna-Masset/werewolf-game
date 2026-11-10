@@ -25,7 +25,7 @@ const SCHEMA_VERSION = "1.0.0"
 # Allowed values, copied from schema/game_log.schema.json
 const ROLES = ["werewolf", "seer", "witch", "little_girl", "villager", "cupid"]
 const TEAMS = ["village", "werewolves", "lovers"]
-const PERSONALITIES = ["aggressive", "discreet", "manipulative", "trusting"]
+const PERSONALITIES = ["aggressive", "discreet", "manipulative", "trusting", "none"]
 const PHASES = ["setup", "night", "day", "end"]
 const EVENT_TYPES = ["role_assigned", "pack_revealed", "spy", "wolf_target", "inspect", "potion",
                      "dawn", "death_announced", "conversation", "impression", "statement",
@@ -87,7 +87,8 @@ function GameLog(; seed::Integer, role_counts=nothing, config=Dict(), title=noth
     return GameLog(meta, Obj[], Obj[], Obj[], nothing, 0)
 end
 
-function add_player!(log::GameLog, id, name, role, team, personality)
+function add_player!(log::GameLog, id, name, role, team, personality=:none)
+    # personality: leave it out (:none) for games without personalities
     push!(log.players, obj(:id => pid(id), :name => string(name), :role => string(role),
                            :team => string(team), :personality => string(personality)))
     return log

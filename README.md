@@ -115,7 +115,7 @@ Rules for the simulator:
 
 - **Player ids** look like `p01`, `p02`, …. Roles: `werewolf, seer, witch, little_girl, villager, cupid`.
   Teams: `village, werewolves` (`lovers` is reserved for cupid). Personalities:
-  `aggressive, discreet, manipulative, trusting`.
+  `aggressive, discreet, manipulative, trusting`, or `none` for games without personalities (no badge shown).
 - **Steps** are ordered, and `t` is the step index (0, 1, 2, …). `phase` is `setup | night | day | end`.
   `subphase` is a free display label (`seer`, `wolves`, `witch`, `dawn`, `conversations`, `debate`,
   `vote`, `runoff`, …).

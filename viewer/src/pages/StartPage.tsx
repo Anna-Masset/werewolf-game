@@ -97,8 +97,8 @@ export function StartPage() {
                     <span className="pov-icon">{pov === 'narrator' ? ROLE_ICON[p.role] : '?'}</span>
                     <span className="pov-name">{p.name}</span>
                     <span className="pov-sub">
-                      {PERSONALITY_ICON[p.personality]} {PERSONALITY_LABEL[p.personality]}
-                      {pov === 'narrator' && <> · {ROLE_LABEL[p.role]}</>}
+                      {p.personality !== 'none' && <>{PERSONALITY_ICON[p.personality]} {PERSONALITY_LABEL[p.personality]}</>}
+                      {pov === 'narrator' && <>{p.personality !== 'none' && ' · '}{ROLE_LABEL[p.role]}</>}
                     </span>
                   </button>
                 ))}

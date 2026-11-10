@@ -33,6 +33,7 @@ export const PERSONALITY_ICON: Record<Personality, string> = {
   discreet: '🤫',
   manipulative: '🎭',
   trusting: '🤝',
+  none: '',
 }
 
 export const PERSONALITY_LABEL: Record<Personality, string> = {
@@ -40,6 +41,7 @@ export const PERSONALITY_LABEL: Record<Personality, string> = {
   discreet: 'Discreet',
   manipulative: 'Manipulative',
   trusting: 'Trusting',
+  none: '',
 }
 
 /** Groups used for timeline markers and feed filters. */
