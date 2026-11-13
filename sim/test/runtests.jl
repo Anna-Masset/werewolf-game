@@ -60,3 +60,7 @@ end
 
     @test_throws ErrorException add_event!(GameLog(seed=0), :vote, 1, 2)   # no step yet
 end
+
+include("test_engine.jl")
+include("test_gamerecord.jl")
+include("test_game.jl")

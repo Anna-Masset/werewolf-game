@@ -2,7 +2,7 @@
 
 julia_version = "1.13.1"
 manifest_format = "2.1"
-project_hash = "a24602d09527850f6bc60ce0eb920a7e6fe2a9aa"
+project_hash = "5d3b7980d88a0b90c80184374bf191d6f485bb77"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -101,7 +101,7 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 version = "1.11.0"
 
 [[deps.Werewolf]]
-deps = ["Dates", "JSON"]
+deps = ["Dates", "JSON", "Random"]
 path = "."
 uuid = "6bc65164-68d3-4e32-9bf5-2a717faa81e1"
 version = "0.1.0"

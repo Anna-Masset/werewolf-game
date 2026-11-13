@@ -101,7 +101,10 @@ export function narrate(
       const tally = Object.entries(p.tally as Record<PlayerId, number>).sort((a, b) => b[1] - a[1])
       const top = tally.filter(([, n]) => n === tally[0][1])
       if (p.tied) {
-        return { ...base, icon: '⚖️', text: `Tie between ${top.map(([id]) => who(id)).join(' and ')} (${top[0][1]} votes each).${p.runoff ? ' A runoff follows.' : ' Nobody is eliminated.'}` }
+        const outcome = p.runoff ? ' A runoff follows.'
+          : p.eliminated ? ` ${Who(p.eliminated)} is drawn at random.`
+          : ' Nobody is eliminated.'
+        return { ...base, icon: '⚖️', text: `Tie between ${top.map(([id]) => who(id)).join(' and ')} (${top[0][1]} votes each).${outcome}` }
       }
       return { ...base, icon: '⚖️', text: `${Who(p.eliminated)} received the most votes (${top[0][1]}).` }
     }
